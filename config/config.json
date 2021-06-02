@@ -1,0 +1,83 @@
+{
+
+    "max-limits" : {
+		"100" : {
+            "maxConnectionCount" : 100,
+            "maxTransactedSessionCount" : 100,
+            "maxEgressFlowCount" : 100,
+            "maxIngressFlowCount" : 100,
+            "maxEndpointCount" : 100		
+        },
+		"1k" : {
+            "maxConnectionCount" : 1000,
+            "maxTransactedSessionCount" : 1000,
+            "maxEgressFlowCount" : 1000,
+            "maxIngressFlowCount" : 1000,
+            "maxEndpointCount" : 1000
+		},
+		"10k" : {
+            "maxConnectionCount" : 10000,
+            "maxTransactedSessionCount" : 10000,
+            "maxEgressFlowCount" : 10000,
+            "maxIngressFlowCount" : 10000,
+            "maxEndpointCount" : 10000		
+        },
+		"16k" : {
+            "maxConnectionCount" : 200000,
+            "maxTransactedSessionCount" : 16000,
+            "maxEgressFlowCount" : 16000,
+            "maxIngressFlowCount" : 16000,
+            "maxEndpointCount" : 200000		
+        },
+		"100k" : {
+            "maxConnectionCount" : 100000,
+            "maxTransactedSessionCount" : 100000,
+            "maxEgressFlowCount" : 100000,
+            "maxIngressFlowCount" : 100000,
+            "maxEndpointCount" : 100000		
+        },
+		"200k" : {
+            "maxConnectionCount" : 200000,
+            "maxTransactedSessionCount" : 200000,
+            "maxEgressFlowCount" : 200000,
+            "maxIngressFlowCount" : 200000,
+            "maxEndpointCount" : 200000			
+        }
+    },
+	
+    "ignore-objects" : ["publishTopicExceptions"],
+
+    "ignore-tags" : {
+        "aclProfileName" : ["#acl-profile", "default"],
+        "clientProfileName" : ["#client-profile", "default"],
+        "clientUsername" : ["#client-username", "default"],
+        "queueName" : ["#REPLAY_LOG_defaultLog", "#REPLAY_TOPICS_defaultLog"],
+        "publishTopicExceptionSyntax" : ["smf"]
+
+    },
+
+    "drop-tags" : {
+        "9.6" : [ 
+            "bridgingTlsServerCertValidateNameEnabled",
+            "preferIpVersion",
+            "sempOverMsgBusLegacyShowClearEnabled",
+            "serviceMqttAuthenticationClientCertRequest",
+            "serviceRestIncomingAuthenticationClientCertRequest",
+            "serviceRestIncomingAuthorizationHeaderHandling",
+            "serviceWebAuthenticationClientCertRequest",
+            "maxMsgsPerTransaction",
+            "serviceMinKeepaliveTimeout",
+            "serviceSmfMinKeepaliveEnabled",
+            "deliveryCountEnabled",
+            "redeliveryEnabled",
+            "replicationBridgeAuthenticationBasicClientUsername"
+        ],
+	
+    "9.9" : [ 
+        "replicationBridgeAuthenticationBasicClientUsername",
+		"replicationBridgeAuthenticationBasicPassword"
+    ]
+},
+
+    "ignore-status" : [ "ALREADY_EXISTS", "NOT_ALLOWED"]
+}

@@ -1,0 +1,19 @@
+{   
+    "meta" : {
+        "model" : "appliance 3560",
+        "adb" : "adb4",
+        "nab" : "2x10",
+        "env" : "prod",
+        "customer" : "solace-customer"
+    },
+    "limits" : {
+        "maxNumVpn":500,
+        "maxConnectionCount": 9000,
+        "maxEgressFlowCount": 16000,
+        "maxEndpointCount": 16000,
+        "maxIngressFlowCount": 16000,
+        "maxMsgSpoolUsage": 1321205,
+        "maxTransactedSessionCount": 16000,
+        "maxTransactionCount": 50000
+    }
+}
