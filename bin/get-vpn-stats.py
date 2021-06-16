@@ -54,15 +54,16 @@ def main(argv):
     log = SL.Logger(me, r.verbose).SetupLogger()
     log.info(me + ": Starting stats query for router {}".format(r.routername))
 
-    semp = SP.SempV2Parser(log, r)
     if r.object == 'vpn':
         url="{}{}{}".format(r.host,config_url,r.vpn)
+        r.count = 0 # can't use paging with non-collection objects
     else:
         url="{}{}{}/{}".format(r.host,config_url,r.vpn, r.object)
 
-    log.info("Getting JSONs from {}".format(url))
+    log.info("Getting stats from {} (paging: {})".format(url, r.count))
 
     # Get VPN Config
+    semp = SP.SempV2Parser(log, r)
     json_data = semp.Get(url)
     outdir="{}/{}/vpns/".format(r.outdir, r.routername)
     outfile='{}/{}.json'.format(r.vpn, r.object)
