@@ -1,3 +1,4 @@
 data/**
+stats/**
 lib/__pycache__/**
 log/**

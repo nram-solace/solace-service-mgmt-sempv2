@@ -16,6 +16,8 @@ import json
 #from importlib_resources import read_text
 import logging, inspect
 import urllib, pathlib
+from urllib.parse import unquote
+
 
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
@@ -49,13 +51,12 @@ class SempV2Parser:
         self.vpname = ''
 
     # Get
-    def Get(self, url, collections=False, json_data=None):
+    def Get(self, url, collections=False, paging=True, json_data=None,):
         verb='get'
         log = self.log
         log.enter ("%s::%s url = %s", __name__, inspect.stack()[0][3], url)
 
         if collections:
-            paging = True
             if int(self.count) == 0:
                 paging = False
             # some elements throw 400 not supported if page count is sent
@@ -76,11 +77,21 @@ class SempV2Parser:
                    auth=(self.cliuser, self.passwd),
                    data=(json.dumps(json_data) if json_data != None else None))
         else:
-            log.debug("-- Get object URL {}".format(url))
-            req = getattr(requests, verb)(url, 
-                headers={"content-type": "application/json"},
-                auth=(self.cliuser, self.passwd),
-                data=(json.dumps(json_data) if json_data != None else None))
+            if int(self.count) == 0:
+                paging = False
+            if paging :
+                log.debug("-- Get object URL {} (page count: {})".format(url, self.count))
+                req = getattr(requests, verb)(url, 
+                    headers={"content-type": "application/json"},
+                    auth=(self.cliuser, self.passwd),
+                    params={'count':self.count},
+                    data=(json.dumps(json_data) if json_data != None else None))
+            else:
+                log.debug("-- Get object URL {} (no paging)".format(url))
+                req = getattr(requests, verb)(url, 
+                    headers={"content-type": "application/json"},
+                    auth=(self.cliuser, self.passwd),
+                    data=(json.dumps(json_data) if json_data != None else None))
         #print("Get: req.json()")
         #pp.pprint(req.json())
         if (req.status_code != 200):
@@ -241,8 +252,9 @@ class SempV2Parser:
     # For each link, get the JSON content and write to file.
     # and recurse until none left.
     def ProcessLinks(self, json_data):
-        #print ('YAS2P::ProcessLinks  ', json_data)
-        log = self.log 
+        log = self.log
+        log.enter ("%s::%s", __name__, inspect.stack()[0][3])
+        #log.trace(json_data)
         if 'links' not in json_data:
             log.debug ("No Links")
             return
@@ -253,7 +265,7 @@ class SempV2Parser:
                 if 'uri' in link_keys:
                     link_keys.remove('uri') 
                 if len(link_keys) == 0 :
-                    #print ("No non-uri links")
+                    log.trace ("No non-uri links in list")
                     return       
                 #print ("   processing {:d} links: {:s}".format(len(lkeys), lkeys))
                 for l in link_keys:
@@ -266,7 +278,7 @@ class SempV2Parser:
             if 'uri' in link_keys:
                 link_keys.remove('uri') 
             if len(link_keys) == 0 :
-                #print ("No non-uri links")
+                log.trace ("No non-uri links in non-list")
                 return       
             #print ("   processing {:d} links: {:s}".format(len(lkeys), lkeys))
             for link_key in link_keys:
@@ -288,9 +300,9 @@ class SempV2Parser:
         return ("{}-{}.json".format(obj1,objmap[key]))
 
     # processLink
-    def processLink(self, url, collection):
+    def processLink(self, url, collection, paging=True, follow_links=True):
         log = self.log
-        log.enter ("%s::%s url = %s", __name__, inspect.stack()[0][3], url)
+        log.enter ("%s::%s url = %s, collection = %s, links = %s", __name__, inspect.stack()[0][3], url, collection, follow_links)
         #ph,obj = os.path.split(url)
         path=url[url.find('/msgVpns/')+8:]
         if path.rfind('?')>0:
@@ -301,7 +313,7 @@ class SempV2Parser:
 
         #-- Process link
         log.debug ("Processing link {}".format(url))  
-        json_data = self.Get(url, collection)
+        json_data = self.Get(url, collection, paging)
 
         # Write data to file
 
@@ -314,11 +326,17 @@ class SempV2Parser:
         if 'paging' in meta_data:
             log.trace ("paging : %s", meta_data['paging'])
             next_page_uri = meta_data['paging']['nextPageUri']
-            log.debug ("Processig Next Page URI : %s", next_page_uri)
+            log.debug ("Processig Next Page URI : %s", unquote(next_page_uri))
             # process nextPageUri - recursively
-            self.processLink(next_page_uri, False) # don't use collection for nextPage
+            self.processLink(next_page_uri, False, False, follow_links) # don't use collection for nextPage
+                                                                        # don't add page count either. Its part of nextPage URL already
             # process the links from nextPageUri returned page. This is deep recursion!
-            self.ProcessLinks(json_data) 
+            if follow_links:
+                self.ProcessLinks(json_data)
+            else:
+                log.debug('follow-links is off')
+        else:
+            log.trace('No paging in meta-data')
             
         return json_data
 
