@@ -24,4 +24,4 @@ python3 bin/create-vpn.py --host http://lab-128-27:80 --datadir data/json/lab-12
 
 ### Export to cloud
 
-python3 bin/create-vpn.py --host https://mr2webh7l7uck.messaging.solace.cloud:943 --datadir data/json/lab-129-78/vpns/DallasGlobalProd --user nram-hbk-test-vpn-admin --password xxxxx --vpn nram-hbk-test-vpn
+python3 bin/create-vpn.py --host https://mr2webh7l7uck.messaging.solace.cloud:943 --datadir data/json/lab-129-78/vpns/DallasGlobalProd --user nram-hbk-test-vpn-admin --password xxxxx --vpn nram-test-vpn
